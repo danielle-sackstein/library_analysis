@@ -1,10 +1,10 @@
 import numpy as np
+from PvalueCalculator import PvalueCalculator
 
 moc_minus_index = 0
 moc_plus_index = 1
 trn_minus_index = 2
 trn_plus_index = 3
-
 
 # distance_func = lambda x, y: x-y
 def distance_func(x, y):
@@ -14,6 +14,17 @@ def distance_func(x, y):
 class TestConditionSet:
     def __init__(self, conditions):
         self.conditions = conditions
+
+    def get_p_value_pair(self):
+        calculator_moc = PvalueCalculator(
+            self.conditions[moc_minus_index],
+            self.conditions[moc_plus_index])
+
+        calculator_trn = PvalueCalculator(
+            self.conditions[trn_minus_index],
+            self.conditions[trn_plus_index])
+
+        return calculator_moc.calc_p_value(), calculator_trn.calc_p_value()
 
     def delete_by_threshold(self, threshold):
 
