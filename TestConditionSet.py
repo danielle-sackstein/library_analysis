@@ -1,4 +1,6 @@
 import numpy as np
+
+from FoldChangeCalculator import FoldChangeCalculator
 from PvalueCalculator import PvalueCalculator
 
 moc_minus_index = 0
@@ -26,6 +28,18 @@ class TestConditionSet:
 
         return calculator_moc.calc_p_value(), calculator_trn.calc_p_value()
 
+    def calculate_fold_changes(self):
+
+        calculator_moc = FoldChangeCalculator(
+            self.conditions[moc_minus_index],
+            self.conditions[moc_plus_index])
+
+        calculator_trn = FoldChangeCalculator(
+            self.conditions[trn_minus_index],
+            self.conditions[trn_plus_index])
+
+        return calculator_moc.calculate_fold_change(), calculator_trn.calculate_fold_change()
+
     def delete_by_threshold(self, threshold):
 
         union_indeces = np.array([])
@@ -37,30 +51,3 @@ class TestConditionSet:
             condition.delete_and_log(union_indeces)
 
         return union_indeces
-
-    def calculate_ratio_of_average(self):
-
-        averages = [
-            condition.get_averages_over_repetitions()
-            for condition in self.conditions
-        ]
-
-        ratio_moc = distance_func(averages[moc_minus_index], averages[moc_plus_index])
-        ratio_trn = distance_func(averages[trn_minus_index], averages[trn_plus_index])
-
-        return ratio_moc, ratio_trn
-
-    def calculate_average_of_ratio(self):
-
-        ratio_moc = distance_func(self.get_condition_repetitions(moc_minus_index),
-                                  self.get_condition_repetitions(moc_plus_index))
-        ratio_trn = distance_func(self.get_condition_repetitions(trn_minus_index),
-                                  self.get_condition_repetitions(trn_plus_index))
-
-        average_moc = np.average(ratio_moc, axis=1)
-        average_trn = np.average(ratio_trn, axis=1)
-
-        return average_moc, average_trn
-
-    def get_condition_repetitions(self, index):
-        return self.conditions[index].repetitions

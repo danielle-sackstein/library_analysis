@@ -13,6 +13,14 @@ class PvalueCalculator:
         self.leftCondition = leftCondition
         self.rightCondition = rightCondition
 
+    def calc_p_value(self):
+        log_likelihood_ratio = self.calc_log_likelihood_ratio()
+        value_for_chisquare = -2 * log_likelihood_ratio
+
+        # The Pvalue will  be 1 when chi2.cdf(value_for_chisquare, 1) is zero, that happens when the value_for_chisquare < 0.
+        p_value = 1 - chi2.cdf(value_for_chisquare, 1)
+        return p_value
+
     def calc_log_likelihood_ratio(self):
         left_repetitions = self.leftCondition.repetitions
         right_repetitions = self.rightCondition.repetitions
@@ -23,11 +31,3 @@ class PvalueCalculator:
         all_product = calc_poisson_product(all_repetitions)
 
         return np.log(all_product / (left_product * right_product))
-
-    def calc_p_value(self):
-        log_likelihood_ratio = self.calc_log_likelihood_ratio()
-        value_for_chisquare = -2 * log_likelihood_ratio
-
-        # The Pvalue will  be 1 when chi2.cdf(value_for_chisquare, 1) is zero, that happens when the value_for_chisquare < 0.
-        p_value = 1 - chi2.cdf(value_for_chisquare, 1)
-        return p_value

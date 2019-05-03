@@ -19,14 +19,9 @@ def run():
 
     test_condition_set = experiment_results.create_test_condition_set(indeces, threshold)
 
-    ratio_moc, ratio_trn = test_condition_set.calculate_ratio_of_average()
+    ratio_moc, ratio_trn = test_condition_set.calculate_fold_changes()
 
     show_results(experiment_results.gene_names, ratio_moc, ratio_trn)
-
-    ratio_moc, ratio_trn = test_condition_set.calculate_average_of_ratio()
-
-    show_results(experiment_results.gene_names, ratio_moc, ratio_trn)
-
 
 if __name__ == '__main__':
     run()
