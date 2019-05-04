@@ -65,3 +65,19 @@ def print_results(gene_names, indeces_x_outliers, indeces_y_outliers):
     for i in indeces_y_outliers:
         print(gene_names[i])
 
+
+def volcano_plot(fold_changes, pValues):
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+
+    ax1.scatter(fold_changes, pValues, s=10, c='red', label="Gene expression")
+
+    ax1.legend(loc='lower right')
+
+    plt.title('Difference in genes count of two conditions ' + title)
+    plt.xlabel("fold_changes")
+    plt.ylabel("pvalues")
+
+    plt.savefig('Scatter Plot')
+    plt.show()
+    plt.clf()

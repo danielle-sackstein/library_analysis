@@ -4,8 +4,13 @@ from scipy.stats import chi2
 
 
 def calc_poisson_product(values):
-    mu = np.average(values)
-    return np.product([scipy.stats.poisson.cdf(v, mu) for v in values])
+    vector = np.zeros((values.shape[0]))
+    for i in range(values.shape[0]):
+        print(i)
+        mu = np.average(values[i, :])
+        vector[i] = np.product([scipy.stats.poisson.cdf(v, mu) for v in values])
+
+    return vector
 
 
 class PvalueCalculator:

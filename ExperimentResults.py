@@ -1,6 +1,7 @@
 import numpy as np
 from Condition import Condition
 from TestConditionSet import TestConditionSet
+from ConditionPairSet import ConditionPairSet
 
 num_genes = 3
 num_conditions = 7
@@ -38,19 +39,21 @@ class ExperimentResults:
         # num_conditions x 1
         self.conditions = create_conditions(libraries)
 
-    def create_test_condition_set(self, test_condition_indeces, threshold):
 
+    def _get_condition(self, condition_index: int) -> Condition:
+        return self.conditions[condition_index]
+
+    def create_condition_pair_set(self, test_condition_indeces, threshold):
         test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
 
-        test_condition_set = TestConditionSet(test_conditions)
+        test_condition_set = ConditionPairSet(test_conditions)
         deleted_indeces = test_condition_set.delete_by_threshold(threshold)
 
         self.gene_names = np.delete(self.gene_names, deleted_indeces, axis=0)
 
         return test_condition_set
 
-    def _get_condition(self, condition_index: int) -> Condition:
-        return self.conditions[condition_index]
+
 
 
 

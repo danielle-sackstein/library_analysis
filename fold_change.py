@@ -1,5 +1,5 @@
 from ExperimentResults import ExperimentResults
-from ShowResults import show_results
+from ShowResults import *
 
 cond_moc_minus = 3
 cond_moc_plus = 4
@@ -23,7 +23,20 @@ def run():
 
     show_results(experiment_results.gene_names, ratio_moc, ratio_trn)
 
+
+def create_volcano():
+    experiment_results = ExperimentResults()
+
+    condition_pair_set_indeces = (cond_moc_plus, cond_moc_minus)
+
+    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
+
+    pValues = condition_pair_set.get_p_value_pair()
+    fold_changes = condition_pair_set.calculate_fold_changes()
+
+    volcano_plot(fold_changes, -np.log(pValues))
+
+
 if __name__ == '__main__':
-    run()
-
-
+    # run()
+    create_volcano()
