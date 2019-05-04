@@ -18,11 +18,11 @@ class ConditionPairSet:
     def __init__(self, conditions):
         self.conditions = conditions
 
-    def get_p_value(self):
+    def get_p_values(self):
         calculator_pValue = PvalueCalculator(self.conditions[0], self.conditions[1])
-        return calculator_pValue.calc_p_value()
+        return calculator_pValue.calc_p_values()
 
-    def calculate_fold_change(self):
+    def calculate_fold_changes(self):
         calculator_fold_change = FoldChangeCalculator(self.conditions[0], self.conditions[1])
         return calculator_fold_change.calculate_fold_change()
 
