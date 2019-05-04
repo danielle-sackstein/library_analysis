@@ -32,7 +32,7 @@ class PvalueCalculator:
 
         left_product = calc_poisson_product(left_repetitions)
         right_product = calc_poisson_product(right_repetitions)
-        all_repetitions = np.concatenate((left_repetitions, right_repetitions))
+        all_repetitions = np.concatenate((left_repetitions, right_repetitions), axis=1)
         all_product = calc_poisson_product(all_repetitions)
 
         return np.log(all_product / (left_product * right_product))

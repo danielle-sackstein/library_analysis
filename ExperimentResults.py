@@ -4,7 +4,7 @@ from TestConditionSet import TestConditionSet
 from ConditionPairSet import ConditionPairSet
 
 num_genes = 3
-num_conditions = 7
+num_conditions = 2
 num_tested_conditions = 4
 num_repetitions = 4
 total_conditions = num_conditions * num_repetitions
@@ -25,8 +25,8 @@ class ExperimentResults:
     def __init__(self):
 
         data_dir = "./data/"
-        gene_names_file = data_dir + "gene.names.npy"
-        libraries_file = data_dir + "libraries.npy"
+        gene_names_file = data_dir + "test_genes.npy"
+        libraries_file = data_dir + "test_frequencies.npy"
 
         # num_genes x total_conditions
         # for each gene total_conditions frequency values, one for each condition-repetition

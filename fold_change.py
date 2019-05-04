@@ -27,7 +27,7 @@ def run():
 def create_volcano():
     experiment_results = ExperimentResults()
 
-    condition_pair_set_indeces = (cond_moc_plus, cond_moc_minus)
+    condition_pair_set_indeces = (0, 1)
 
     condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
 
