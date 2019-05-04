@@ -19,7 +19,7 @@ def run():
 
     test_condition_set = experiment_results.create_test_condition_set(indeces, threshold)
 
-    ratio_moc, ratio_trn = test_condition_set.calculate_fold_changes()
+    ratio_moc, ratio_trn = test_condition_set.calculate_fold_change()
 
     show_results(experiment_results.gene_names, ratio_moc, ratio_trn)
 
@@ -31,8 +31,8 @@ def create_volcano():
 
     condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
 
-    pValues = condition_pair_set.get_p_value_pair()
-    fold_changes = condition_pair_set.calculate_fold_changes()
+    pValues = condition_pair_set.get_p_value()
+    fold_changes = condition_pair_set.calculate_fold_change()
 
     volcano_plot(fold_changes, -np.log(pValues))
 

@@ -1,10 +1,5 @@
 import numpy as np
 
-
-def setGene(test_data, gene_index, library_index, value):
-    test_data[gene_index, library_index] = value
-
-
 if __name__ == '__main__':
     num_genes = 3
     num_conditions = 2
@@ -18,10 +13,10 @@ if __name__ == '__main__':
 
     # random_noise = np.random.normal(loc=0.0, scale=2.0, size=test_data.shape)
     # test_data += random_noise
-    test_data[0, 0] = 1000
-    test_data[0, 2] = 1000
-    test_data[0, 4] = 1000
-    test_data[0, 6] = 1000
+    test_data[0, 0] = 10
+    test_data[0, 2] = 10
+    test_data[0, 4] = 10
+    test_data[0, 6] = 10
 
     test_data[2, 0] = 10000
     test_data[2, 2] = 10000
@@ -34,12 +29,13 @@ if __name__ == '__main__':
     # test_data[0, condition_0_indeces] = 900
     # test_data[1, condition_0_indeces] = 8
     # test_data[2, condition_0_indeces] = 10
-    #
+
     # test_data[0, condition_1_indeces] = 8
     # test_data[1, condition_1_indeces] = 900
     # test_data[2, condition_1_indeces] = 10
-    #
+
     # # test_data = np.transpose(np.array(test_data))
+
     np.save("./data/test_frequencies", test_data)
     test_genes = np.array(["gene1", "gene2", "gene3"])
     np.save("./data/test_genes", test_genes)

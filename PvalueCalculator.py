@@ -2,13 +2,18 @@ import numpy as np
 import scipy
 from scipy.stats import chi2
 
+epsilon = 0.0000001
+
 
 def calc_poisson_product(values):
     vector = np.zeros((values.shape[0]))
     for i in range(values.shape[0]):
         print(i)
         mu = np.average(values[i, :])
-        vector[i] = np.product([scipy.stats.poisson.cdf(v, mu) for v in values])
+        product = np.product([scipy.stats.poisson.pmf(v, mu) for v in values[i]])
+        if product == 0:
+            product = epsilon
+        vector[i] = product
 
     return vector
 
@@ -23,7 +28,8 @@ class PvalueCalculator:
         value_for_chisquare = -2 * log_likelihood_ratio
 
         # The Pvalue will  be 1 when chi2.cdf(value_for_chisquare, 1) is zero, that happens when the value_for_chisquare < 0.
-        p_value = 1 - chi2.cdf(value_for_chisquare, 1)
+        p_value = chi2.sf(value_for_chisquare, 1)
+        # p_value = 1- chi2.cdf(value_for_chisquare, 1)
         return p_value
 
     def calc_log_likelihood_ratio(self):
