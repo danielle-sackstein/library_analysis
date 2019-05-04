@@ -48,6 +48,6 @@ class TestConditionSet:
             union_indeces = np.union1d(union_indeces, indeces)
 
         for condition in self.conditions:
-            condition.delete_and_log(union_indeces)
+            condition.delete(union_indeces)
 
         return union_indeces

@@ -3,27 +3,11 @@ from Condition import Condition
 from TestConditionSet import TestConditionSet
 from ConditionPairSet import ConditionPairSet
 
-num_genes = 3
-num_conditions = 2
-num_tested_conditions = 4
 num_repetitions = 4
-total_conditions = num_conditions * num_repetitions
-
-
-def create_condition(condition_index, libraries):
-    condition_indeces = [
-        condition_index + i * num_conditions for i in range(num_repetitions)
-    ]
-    return Condition(condition_index, condition_indeces, libraries)
-
-
-def create_conditions(libraries):
-    return np.array([create_condition(i, libraries) for i in range(num_conditions)])
 
 
 class ExperimentResults:
     def __init__(self):
-
         data_dir = "./data/"
         gene_names_file = data_dir + "test_genes.npy"
         libraries_file = data_dir + "test_frequencies.npy"
@@ -31,14 +15,16 @@ class ExperimentResults:
         # num_genes x total_conditions
         # for each gene total_conditions frequency values, one for each condition-repetition
         libraries = np.load(libraries_file).astype(float)
+        self.num_genes = libraries.shape[0]
+        self.total_num_conditions = libraries.shape[1]
+        self.num_conditions = (int)(self.total_num_conditions / num_repetitions)
 
         # num_genes x 1
         # for each gene the name of the gene
         self.gene_names = np.load(gene_names_file).astype(str)
 
         # num_conditions x 1
-        self.conditions = create_conditions(libraries)
-
+        self.conditions = self.create_conditions(libraries)
 
     def _get_condition(self, condition_index: int) -> Condition:
         return self.conditions[condition_index]
@@ -53,8 +39,11 @@ class ExperimentResults:
 
         return test_condition_set
 
+    def create_condition(self, condition_index, libraries):
+        condition_indeces = [
+            condition_index + i * self.num_conditions for i in range(num_repetitions)
+        ]
+        return Condition(condition_index, condition_indeces, libraries)
 
-
-
-
-
+    def create_conditions(self, libraries):
+        return np.array([self.create_condition(i, libraries) for i in range(self.num_conditions)])

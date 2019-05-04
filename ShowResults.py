@@ -74,6 +74,7 @@ def volcano_plot(fold_changes, pValues):
 
     # ax1.legend(loc='lower right')
 
+    ax1.set_xlim(-10,10)
     ax1.set_ylim(-1,1)
 
     plt.title("volcano Plot")
