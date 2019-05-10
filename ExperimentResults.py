@@ -3,14 +3,15 @@ from Condition import Condition
 from TestConditionSet import TestConditionSet
 from ConditionPairSet import ConditionPairSet
 
+test = ".test"
 num_repetitions = 4
 
 
 class ExperimentResults:
     def __init__(self):
         data_dir = "./data/"
-        gene_names_file = data_dir + "test_genes.npy"
-        libraries_file = data_dir + "test_frequencies.npy"
+        gene_names_file = data_dir + "gene.names" + test + ".npy"
+        libraries_file = data_dir + "libraries" + test + ".npy"
 
         # num_genes x total_conditions
         # for each gene total_conditions frequency values, one for each condition-repetition
@@ -32,7 +33,18 @@ class ExperimentResults:
     def create_condition_pair_set(self, test_condition_indeces, threshold):
         test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
 
-        test_condition_set = ConditionPairSet(test_conditions)
+        condition_pair_set = ConditionPairSet(test_conditions)
+        # todo: bring back if not in test
+        # deleted_indeces = condition_pair_set.delete_by_threshold(threshold)
+
+        # self.gene_names = np.delete(self.gene_names, deleted_indeces, axis=0)
+
+        return condition_pair_set
+
+    def create_test_condition_set(self, test_condition_indeces, threshold):
+        test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
+
+        test_condition_set = TestConditionSet(test_conditions)
         deleted_indeces = test_condition_set.delete_by_threshold(threshold)
 
         self.gene_names = np.delete(self.gene_names, deleted_indeces, axis=0)
@@ -47,3 +59,6 @@ class ExperimentResults:
 
     def create_conditions(self, libraries):
         return np.array([self.create_condition(i, libraries) for i in range(self.num_conditions)])
+
+    def get_gene_names(self):
+        return self.gene_names

@@ -37,3 +37,19 @@ class ConditionPairSet:
             condition.delete(union_indeces)
 
         return union_indeces
+
+    def delete_by_std(self):
+        union_indeces_condition = np.array([])
+        union_indeces_conditions = np.array([])
+
+        for i in range(self.conditions.shape[0]):
+            for j, gene_repetitions in enumerate(self.conditions[i].repetitions):
+                std = np.std(gene_repetitions)
+                if (std > 100):
+                    union_indeces_condition = np.union1d(union_indeces_condition, j)
+            union_indeces_conditions = np.union1d(union_indeces_conditions, union_indeces_condition)
+
+        for condition in self.conditions:
+            condition.delete(union_indeces_conditions)
+
+        return union_indeces_conditions
