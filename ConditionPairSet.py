@@ -33,22 +33,35 @@ class ConditionPairSet:
             indeces = self.conditions[i].get_gene_indeces_under_threshold(threshold)
             union_indeces = np.union1d(union_indeces, indeces)
 
-        for condition in self.conditions:
-            condition.delete(union_indeces)
+        self.delete_by_indeces(union_indeces)
 
         return union_indeces
 
-    def get_gene_indeces_by_pair_threshold(self, max_p_value_threshold, min_fold_change_threshold):
-
+    def get_gene_indeces_by_p_value_threshold(self, max_p_value_threshold):
         p_values = self.calculate_p_values()
-        fold_changes = self.calculate_fold_changes()
+        return np.where(p_values > max_p_value_threshold)[0]
 
-        return np.where(p_values > max_p_value_threshold or fold_changes < min_fold_change_threshold)[0]
+    def get_gene_indeces_by_fold_change_threshold(self, fold_change_threshold):
+        fold_changes = self.calculate_fold_changes()
+        if fold_change_threshold > 0:
+            return np.where(fold_changes < fold_change_threshold)[0]
+        else:
+            return np.where(fold_changes > -fold_change_threshold)[0]
+
+    def get_gene_indeces_by_pair_threshold(self, max_p_value_threshold, fold_change_threshold):
+        unreliable_indeces = self.get_gene_indeces_by_p_value_threshold(max_p_value_threshold)
+        insignificant_indeces = self.get_gene_indeces_by_fold_change_threshold(fold_change_threshold)
+
+        return np.union1d(unreliable_indeces, insignificant_indeces)
 
     def get_std_of_pair(self, normalized=True):
         std_left_condition = self.conditions[0].calc_std_for_hist(normalized)
         std_right_condition = self.conditions[1].calc_std_for_hist(normalized)
         return std_left_condition, std_right_condition
+
+    def delete_by_indeces(self, indeces_to_delete):
+        for condition in self.conditions:
+            condition.delete(indeces_to_delete)
 
     def delete_by_std(self):
         union_indeces_condition = np.array([])
@@ -61,8 +74,7 @@ class ConditionPairSet:
                     union_indeces_condition = np.union1d(union_indeces_condition, j)
             union_indeces_conditions = np.union1d(union_indeces_conditions, union_indeces_condition)
 
-        for condition in self.conditions:
-            condition.delete(union_indeces_conditions)
+        self.delete_by_indeces(union_indeces_conditions)
 
         return union_indeces_conditions
 

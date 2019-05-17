@@ -337,14 +337,16 @@ def cascaded_filter_analysis():
     # delete the indeces
     gene_count = experiment_results.delete_genes_by_index(indeces_of_genes_not_valid)
 
-    initial_thresholds = (0.05, 1.2)
+    # delete genes that are insignificant or that are sensitive to smell
 
-    final_thresholds = experiment_results.delete_genes_with_no_significant_change(
-        cond_trn_minus, cond_well_fed, initial_thresholds)
+    initial_thresholds = (0.03, -1.2)
+    final_thresholds = experiment_results.delete_insignificant_genes_by_fold_change(
+        cond_trn_plus, cond_trained, initial_thresholds)
 
-    initial_thresholds = (0.05, 1.2)
+    # delete genes that are insignificant or that are not sensitive to starvation
 
-    final_thresholds = experiment_results.delete_genes_with_no_significant_change(
+    initial_thresholds = (0.03, 1.2)
+    final_thresholds = experiment_results.delete_insignificant_genes_by_fold_change(
         cond_moc_plus, cond_trn_plus, initial_thresholds)
 
 
