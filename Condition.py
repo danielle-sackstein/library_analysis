@@ -30,3 +30,15 @@ class Condition:
 
     def get_averages_over_repetitions(self):
         return np.average(self.repetitions, axis=1)
+
+    def calc_std_for_hist(self, normalized=True):
+        standard_deviations = np.array([])
+        for gene_repetitions in self.repetitions:
+            if normalized:
+                standard_deviations = np.append(standard_deviations,
+                                                np.std(gene_repetitions) / np.average(gene_repetitions))
+            else:
+                standard_deviations = np.append(standard_deviations,
+                                                np.std(gene_repetitions))
+        return standard_deviations
+

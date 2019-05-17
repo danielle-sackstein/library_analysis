@@ -8,29 +8,29 @@ from mne.stats import bonferroni_correction, fdr_correction
 #     def __init__(self, leftCondition, rightCondition):
 #         self.leftCondition = leftCondition
 #         self.rightCondition = rightCondition
-
-    # def calc_p_values(self):
-    #     num_genes = self.leftCondition.repetitions.shape[0]
-    #     p_values = np.zeros(num_genes)
-    #
-    #     for gene_row in range(num_genes):
-    #         x = self.leftCondition.repetitions[gene_row, :]
-    #         y = self.rightCondition.repetitions[gene_row, :]
-    #         p_values[gene_row] = scipy.stats.chisquare(x, y, ddof=1)[1]
-    #
-    #     p_values_corrected = bonferroni_correction(p_values)[1]
-    #
-    #     return p_values_corrected
-
+#
+#     def calc_p_values(self):
+#         num_genes = self.leftCondition.repetitions.shape[0]
+#         p_values = np.zeros(num_genes)
+#
+#         for gene_row in range(num_genes):
+#             x = self.leftCondition.repetitions[gene_row, :]
+#             y = self.rightCondition.repetitions[gene_row, :]
+#             p_values[gene_row] = scipy.stats.chisquare(x, y, ddof=1)[1]
+#
+#         # p_values_corrected = bonferroni_correction(p_values)[1]
+#
+#         return p_values
+#
 epsilon = 0.0000001
 
 def calc_poisson_product(values):
     vector = np.zeros((values.shape[0]))
     for i in range(values.shape[0]):
-        print(i)
+        # print(i)
         mu = np.average(values[i, :])
         # pmf?
-        product = np.product([scipy.stats.poisson.cdf(v, mu) for v in values[i]])
+        product = np.product([scipy.stats.poisson.cdf(np.log(v), mu) for v in values[i]])
         if product == 0:
             product = epsilon
         vector[i] = product

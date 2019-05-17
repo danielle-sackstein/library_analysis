@@ -10,8 +10,8 @@ num_repetitions = 4
 class ExperimentResults:
     def __init__(self):
         data_dir = "./data/"
-        gene_names_file = data_dir + "gene.names" + test + ".npy"
-        libraries_file = data_dir + "libraries" + test + ".npy"
+        gene_names_file = data_dir + "gene.names" + ".npy"
+        libraries_file = data_dir + "libraries" + ".npy"
 
         # num_genes x total_conditions
         # for each gene total_conditions frequency values, one for each condition-repetition
@@ -22,10 +22,12 @@ class ExperimentResults:
 
         # num_genes x 1
         # for each gene the name of the gene
-        self.gene_names = np.load(gene_names_file).astype(str)
-
+        self.gene_transcript_id = np.load(gene_names_file).astype(str)
+        # self.gene_names = self.get_gene_names()
         # num_conditions x 1
         self.conditions = self.create_conditions(libraries)
+        self.cpm = self.update_cpm(libraries)
+
 
     def _get_condition(self, condition_index: int) -> Condition:
         return self.conditions[condition_index]
@@ -35,9 +37,9 @@ class ExperimentResults:
 
         condition_pair_set = ConditionPairSet(test_conditions)
         # todo: bring back if not in test
-        # deleted_indeces = condition_pair_set.delete_by_threshold(threshold)
+        deleted_indeces = condition_pair_set.delete_by_threshold(threshold)
 
-        # self.gene_names = np.delete(self.gene_names, deleted_indeces, axis=0)
+        self.gene_transcript_id = np.delete(self.gene_transcript_id, deleted_indeces, axis=0)
 
         return condition_pair_set
 
@@ -47,7 +49,7 @@ class ExperimentResults:
         test_condition_set = TestConditionSet(test_conditions)
         deleted_indeces = test_condition_set.delete_by_threshold(threshold)
 
-        self.gene_names = np.delete(self.gene_names, deleted_indeces, axis=0)
+        self.gene_transcript_id = np.delete(self.gene_transcript_id, deleted_indeces, axis=0)
 
         return test_condition_set
 
@@ -57,8 +59,40 @@ class ExperimentResults:
         ]
         return Condition(condition_index, condition_indeces, libraries)
 
+    def delete_by_threshold(self, threshold):
+        union_indeces = np.array([])
+        for i in range(self.conditions.shape[0]):
+            indeces = self.conditions[i].get_gene_indeces_under_threshold(threshold)
+            union_indeces = np.union1d(union_indeces, indeces)
+
+        for condition in self.conditions:
+            condition.delete(union_indeces)
+
+        return union_indeces
+
     def create_conditions(self, libraries):
         return np.array([self.create_condition(i, libraries) for i in range(self.num_conditions)])
 
+    def get_condition(self, condition_index):
+        return self.conditions[condition_index]
+
     def get_gene_names(self):
-        return self.gene_names
+        return self.gene_transcript_id
+
+    def calc_averages_of_repetitions(self, condition_index):
+        log_repetitions = np.log(self.conditions[condition_index].repetitions)
+        sum_1 = log_repetitions[:, 0] + log_repetitions[:, 1]
+        sum_2 = log_repetitions[:, 2] + log_repetitions[:, 3]
+        return sum_1 / 2, sum_2 / 2
+
+    def update_cpm(self, libraries):
+        cpm = np.zeros((libraries.shape[0], libraries.shape[1]))
+        for i in range(libraries.shape[1]):
+            sum = np.sum(libraries[:, i])
+            for j in range(libraries.shape[0]):
+                cpm[j, i] = (libraries[j, i] / sum) * 1000000
+        return cpm
+
+
+
+
