@@ -28,20 +28,38 @@ class ExperimentResults:
         self.conditions = self.create_conditions(libraries)
         self.cpm = self.update_cpm(libraries)
 
+    def get_gene_count(self):
+        return self.gene_transcript_id.shape[0]
+
+    def get_genes_under_threshold(self, threshold):
+        union_indeces = np.array([])
+
+        for i in range(self.conditions.shape[0]):
+            indeces = self.conditions[i].get_gene_indeces_under_threshold(threshold)
+            union_indeces = np.union1d(union_indeces, indeces)
+
+        return union_indeces
+
+    def delete_genes_by_index(self, indeces):
+        for condition in self.conditions:
+            condition.delete(indeces)
+
+        self.gene_transcript_id = np.delete(self.gene_transcript_id, indeces, axis=0)
+        return self.gene_transcript_id.shape[0]
 
     def _get_condition(self, condition_index: int) -> Condition:
         return self.conditions[condition_index]
 
-    def create_condition_pair_set(self, test_condition_indeces, threshold):
-        test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
-
-        condition_pair_set = ConditionPairSet(test_conditions)
-        # todo: bring back if not in test
-        deleted_indeces = condition_pair_set.delete_by_threshold(threshold)
-
+    def create_condition_pair_set_with_delete(self, test_condition_indeces, threshold):
+        condition_pair_set = self.create_condition_pair_set(test_condition_indeces)
+        deleted_indeces = condition_pair_set.delete_by_single_condition_threshold(threshold)
         self.gene_transcript_id = np.delete(self.gene_transcript_id, deleted_indeces, axis=0)
 
         return condition_pair_set
+
+    def create_condition_pair_set(self, test_condition_indeces):
+        test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
+        return ConditionPairSet(test_conditions)
 
     def create_test_condition_set(self, test_condition_indeces, threshold):
         test_conditions = np.array([self.conditions[i] for i in test_condition_indeces])
@@ -92,6 +110,37 @@ class ExperimentResults:
             for j in range(libraries.shape[0]):
                 cpm[j, i] = (libraries[j, i] / sum) * 1000000
         return cpm
+
+    def get_gene_indeces_with_no_significant_change(
+            self, cond_1, cond_2, max_p_value_threshold, min_fold_change_threshold):
+        condition_pair = self.create_condition_pair_set((cond_1, cond_2))
+        return condition_pair.get_gene_indeces_by_pair_threshold(
+            max_p_value_threshold,
+            min_fold_change_threshold)
+
+    def delete_genes_with_no_significant_change(self, cond_1, cond_2, initial_thresholds):
+        max_p_value_threshold = initial_thresholds[0]
+        min_fold_change_threshold = initial_thresholds[1]
+
+        gene_count = self.get_gene_count()
+
+        required_gene_count = gene_count / 2
+
+        while gene_count > required_gene_count:
+            # find indeces of genes that are not sensitive to starvation at all
+            indeces_of_genes_not_sensitive_to_starvation = self.get_gene_indeces_with_no_significant_change(
+                cond_1, cond_2, max_p_value_threshold, min_fold_change_threshold)
+
+            # delete the indeces
+            gene_count = self.delete_genes_by_index(indeces_of_genes_not_sensitive_to_starvation)
+
+            max_p_value_threshold = max_p_value_threshold * 0.9
+            min_fold_change_threshold = min_fold_change_threshold / 0.9
+
+        return max_p_value_threshold, min_fold_change_threshold
+
+
+
 
 
 

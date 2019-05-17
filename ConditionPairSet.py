@@ -18,7 +18,7 @@ class ConditionPairSet:
     def __init__(self, conditions):
         self.conditions = conditions
 
-    def get_p_values(self):
+    def calculate_p_values(self):
         calculator_pValue = PvalueCalculator(self.conditions[0], self.conditions[1])
         return calculator_pValue.calc_p_values()
 
@@ -26,7 +26,7 @@ class ConditionPairSet:
         calculator_fold_change = FoldChangeCalculator(self.conditions[0], self.conditions[1])
         return calculator_fold_change.calculate_fold_change()
 
-    def delete_by_threshold(self, threshold):
+    def delete_by_single_condition_threshold(self, threshold):
         union_indeces = np.array([])
 
         for i in range(self.conditions.shape[0]):
@@ -37,6 +37,13 @@ class ConditionPairSet:
             condition.delete(union_indeces)
 
         return union_indeces
+
+    def get_gene_indeces_by_pair_threshold(self, max_p_value_threshold, min_fold_change_threshold):
+
+        p_values = self.calculate_p_values()
+        fold_changes = self.calculate_fold_changes()
+
+        return np.where(p_values > max_p_value_threshold or fold_changes < min_fold_change_threshold)[0]
 
     def get_std_of_pair(self, normalized=True):
         std_left_condition = self.conditions[0].calc_std_for_hist(normalized)

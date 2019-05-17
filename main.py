@@ -55,7 +55,7 @@ def create_volcano():
     # condition_pair_set_indeces = (cond_trn_plus, cond_moc_plus)
     # condition_pair_set_indeces_test = (0,1)
 
-    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
+    condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
     # condition_pair_set.get_gene_most_appeared()
 
     create_volcano_plot(condition_pair_set, experiment_results)
@@ -82,7 +82,7 @@ def find_most_expressed_gene(experiment_results, log2_fold_change, pValues):
 
 
 def create_volcano_plot(condition_pair_set, experiment_results):
-    pValues = condition_pair_set.get_p_values()
+    pValues = condition_pair_set.calculate_p_values()
     fold_changes = condition_pair_set.calculate_fold_changes()
     log2_fold_change = np.log2(fold_changes)
     save_data_to_excel(log2_fold_change, pValues)
@@ -187,7 +187,7 @@ def create_genes_expression_plot():
 
     condition_pair_set_indeces = (cond_trn_plus, cond_moc_plus)
 
-    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
+    condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
     log_fold_changes = np.log(condition_pair_set.calculate_fold_changes())
 
     # get all genes with foldChange 0
@@ -205,9 +205,9 @@ def create_genes_expression_plot():
 def get_volcano_std():
     experiment_results = ExperimentResults()
     condition_pair_set_indeces = (cond_trn_plus, cond_moc_plus)
-    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
+    condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
     condition_pair_set.delete_by_std()
-    condition_pair_set.delete_by_threshold(3)
+    condition_pair_set.delete_by_single_condition_threshold(3)
     create_volcano_plot(condition_pair_set, experiment_results)
 
 
@@ -223,8 +223,8 @@ def create_hist_of_std():
 def create_hist_of_foldchange_std():
     experiment_results = ExperimentResults()
     condition_pair_set_indeces = (cond_trn_plus, cond_moc_plus)
-    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
-    condition_pair_set.delete_by_threshold(5)
+    condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
+    condition_pair_set.delete_by_single_condition_threshold(5)
 
     left_condition_std, right_condition_std = condition_pair_set.get_std_of_pair(normalized=False)
     left_condition_average = np.average(left_condition_std)
@@ -238,7 +238,7 @@ def create_hist_of_foldchange_std():
     condition_pair_set.conditions[0].repetitions = condition_pair_set.conditions[0].repetitions[indeces_to_cutt]
     condition_pair_set.conditions[1].repetitions = condition_pair_set.conditions[1].repetitions[indeces_to_cutt]
 
-    pValues = condition_pair_set.get_p_values()
+    pValues = condition_pair_set.calculate_p_values()
     fold_changes = condition_pair_set.calculate_fold_changes()
 
     save_data_to_excel(fold_changes, pValues)
@@ -309,7 +309,7 @@ def gen_eyal_data_volcano():
 def check_gene(gene_name):
     experiment_results = ExperimentResults()
     condition_pair_set_indeces = (cond_trn_minus, cond_well_fed)
-    condition_pair_set = experiment_results.create_condition_pair_set(condition_pair_set_indeces, threshold)
+    condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
     gene_index = np.where(experiment_results.gene_transcript_id == gene_name)[0][0]
     if gene_index != 0:
         repetitions_cond_0 = condition_pair_set.conditions[0].repetitions[gene_index, :]
@@ -328,7 +328,28 @@ def create_bars_of_expression_in_conditions(gene_name):
     create_eroor_bar(repetitions, gene_name)
 
 
+def cascaded_filter_analysis():
+    experiment_results = ExperimentResults()
+
+    # find indeces of genes for which any of the libraries contain very low counts
+    indeces_of_genes_not_valid = experiment_results.get_genes_under_threshold(threshold)
+
+    # delete the indeces
+    gene_count = experiment_results.delete_genes_by_index(indeces_of_genes_not_valid)
+
+    initial_thresholds = (0.05, 1.2)
+
+    final_thresholds = experiment_results.delete_genes_with_no_significant_change(
+        cond_trn_minus, cond_well_fed, initial_thresholds)
+
+    initial_thresholds = (0.05, 1.2)
+
+    final_thresholds = experiment_results.delete_genes_with_no_significant_change(
+        cond_moc_plus, cond_trn_plus, initial_thresholds)
+
+
 if __name__ == '__main__':
+    cascaded_filter_analysis()
     # run()
     # create_volcano()
     # create_genes_expression_plot()
