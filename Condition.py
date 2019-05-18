@@ -25,7 +25,7 @@ class Condition:
         """
         return np.where(self.repetitions <= threshold)[0]
 
-    def delete(self, indeces_to_delete):
+    def delete_by_indeces(self, indeces_to_delete):
         self.repetitions = np.delete(self.repetitions, indeces_to_delete, axis=0)
 
     def get_averages_over_repetitions(self):

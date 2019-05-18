@@ -18,13 +18,17 @@ class ConditionPairSet:
     def __init__(self, conditions):
         self.conditions = conditions
 
-    def calculate_p_values(self):
-        calculator_pValue = PvalueCalculator(self.conditions[0], self.conditions[1])
-        return calculator_pValue.calc_p_values()
+        calculator_p_value = PvalueCalculator(self.conditions[0], self.conditions[1])
+        self.p_values = calculator_p_value.calc_p_values()
 
-    def calculate_fold_changes(self):
         calculator_fold_change = FoldChangeCalculator(self.conditions[0], self.conditions[1])
-        return calculator_fold_change.calculate_fold_change()
+        self.fold_changes = calculator_fold_change.calculate_fold_change()
+
+    def get_p_values(self):
+        return self.p_values
+
+    def get_fold_changes(self):
+        return self.fold_changes
 
     def delete_by_single_condition_threshold(self, threshold):
         union_indeces = np.array([])
@@ -38,11 +42,11 @@ class ConditionPairSet:
         return union_indeces
 
     def get_gene_indeces_by_p_value_threshold(self, max_p_value_threshold):
-        p_values = self.calculate_p_values()
+        p_values = self.get_p_values()
         return np.where(p_values > max_p_value_threshold)[0]
 
     def get_gene_indeces_by_fold_change_threshold(self, fold_change_threshold):
-        fold_changes = self.calculate_fold_changes()
+        fold_changes = self.get_fold_changes()
         if fold_change_threshold > 0:
             return np.where(fold_changes < fold_change_threshold)[0]
         else:
@@ -61,7 +65,9 @@ class ConditionPairSet:
 
     def delete_by_indeces(self, indeces_to_delete):
         for condition in self.conditions:
-            condition.delete(indeces_to_delete)
+            condition.delete_by_indeces(indeces_to_delete)
+        np.delete(self.p_values, indeces_to_delete, axis=0)
+        np.delete(self.fold_changes, indeces_to_delete, axis=0)
 
     def delete_by_std(self):
         union_indeces_condition = np.array([])

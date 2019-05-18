@@ -43,7 +43,7 @@ def run():
 
     test_condition_set = experiment_results.create_test_condition_set(indeces, threshold)
 
-    ratio_moc, ratio_trn = test_condition_set.calculate_fold_changes()
+    ratio_moc, ratio_trn = test_condition_set.get_fold_changes()
 
     show_results(experiment_results.gene_transcript_id, ratio_moc, ratio_trn)
 
@@ -82,8 +82,8 @@ def find_most_expressed_gene(experiment_results, log2_fold_change, pValues):
 
 
 def create_volcano_plot(condition_pair_set, experiment_results):
-    pValues = condition_pair_set.calculate_p_values()
-    fold_changes = condition_pair_set.calculate_fold_changes()
+    pValues = condition_pair_set.get_p_values()
+    fold_changes = condition_pair_set.get_fold_changes()
     log2_fold_change = np.log2(fold_changes)
     save_data_to_excel(log2_fold_change, pValues)
     plot_volcano_from_library()
@@ -188,7 +188,7 @@ def create_genes_expression_plot():
     condition_pair_set_indeces = (cond_trn_plus, cond_moc_plus)
 
     condition_pair_set = experiment_results.create_condition_pair_set_with_delete(condition_pair_set_indeces, threshold)
-    log_fold_changes = np.log(condition_pair_set.calculate_fold_changes())
+    log_fold_changes = np.log(condition_pair_set.get_fold_changes())
 
     # get all genes with foldChange 0
     genes_fold_zero_indeces = []
@@ -238,8 +238,8 @@ def create_hist_of_foldchange_std():
     condition_pair_set.conditions[0].repetitions = condition_pair_set.conditions[0].repetitions[indeces_to_cutt]
     condition_pair_set.conditions[1].repetitions = condition_pair_set.conditions[1].repetitions[indeces_to_cutt]
 
-    pValues = condition_pair_set.calculate_p_values()
-    fold_changes = condition_pair_set.calculate_fold_changes()
+    pValues = condition_pair_set.get_p_values()
+    fold_changes = condition_pair_set.get_fold_changes()
 
     save_data_to_excel(fold_changes, pValues)
     plot_volcano_from_library()
