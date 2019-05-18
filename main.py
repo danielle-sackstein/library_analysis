@@ -341,13 +341,13 @@ def cascaded_filter_analysis():
 
     initial_thresholds = (0.03, -1.2)
     final_thresholds = experiment_results.delete_insignificant_genes_by_fold_change(
-        cond_trn_plus, cond_trained, initial_thresholds)
+        cond_trn_plus, cond_trained, initial_thresholds, 0.2)
 
     # delete genes that are insignificant or that are not sensitive to starvation
 
     initial_thresholds = (0.03, 1.2)
     final_thresholds = experiment_results.delete_insignificant_genes_by_fold_change(
-        cond_moc_plus, cond_trn_plus, initial_thresholds)
+        cond_moc_plus, cond_trn_plus, initial_thresholds, 0.2)
 
 
 if __name__ == '__main__':

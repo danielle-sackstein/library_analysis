@@ -32,7 +32,7 @@ class ExperimentResults:
         return self.gene_transcript_id.shape[0]
 
     def get_genes_under_threshold(self, threshold):
-        union_indeces = np.array([])
+        union_indeces = np.array([]).astype(int)
 
         for i in range(self.conditions.shape[0]):
             indeces = self.conditions[i].get_gene_indeces_under_threshold(threshold)
@@ -42,7 +42,7 @@ class ExperimentResults:
 
     def delete_genes_by_index(self, indeces):
         for condition in self.conditions:
-            condition.delete(indeces)
+            condition.delete_by_indeces(indeces)
 
         self.gene_transcript_id = np.delete(self.gene_transcript_id, indeces, axis=0)
         return self.gene_transcript_id.shape[0]
@@ -111,25 +111,22 @@ class ExperimentResults:
                 cpm[j, i] = (libraries[j, i] / sum) * 1000000
         return cpm
 
-    def get_gene_indeces_with_no_significant_change(
-            self, cond_1, cond_2, max_p_value_threshold, fold_change_threshold):
-        condition_pair = self.create_condition_pair_set((cond_1, cond_2))
-        return condition_pair.get_gene_indeces_by_pair_threshold(
-            max_p_value_threshold,
-            fold_change_threshold)
-
-    def delete_insignificant_genes_by_fold_change(self, cond_1, cond_2, initial_thresholds):
+    def delete_insignificant_genes_by_fold_change(self, cond_1, cond_2, initial_thresholds, reduction_ratio):
         max_p_value_threshold = initial_thresholds[0]
         fold_change_threshold = initial_thresholds[1]
 
         gene_count = self.get_gene_count()
 
-        required_gene_count = gene_count / 2
+        required_gene_count = gene_count * reduction_ratio
+
+        condition_pair_set = self.create_condition_pair_set((cond_1, cond_2))
 
         while gene_count > required_gene_count:
             # find indeces of genes that are not sensitive to starvation at all
-            indeces_of_genes_not_sensitive_to_starvation = self.get_gene_indeces_with_no_significant_change(
-                cond_1, cond_2, max_p_value_threshold, fold_change_threshold)
+
+            indeces_of_genes_not_sensitive_to_starvation = condition_pair_set.get_gene_indeces_by_pair_threshold(
+                max_p_value_threshold,
+                fold_change_threshold)
 
             # delete the indeces
             gene_count = self.delete_genes_by_index(indeces_of_genes_not_sensitive_to_starvation)
